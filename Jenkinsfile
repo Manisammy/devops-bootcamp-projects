@@ -9,15 +9,24 @@ pipeline {
     stage('Install aws-cli on slave') {
       steps {
         sh '''
-          sudo apt update
-          sudo apt install -y unzip curl python3-pip jq
+          # Install AWS CLI v2
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
           rm -rf awscliv2.zip aws
 
-          pip3 install --upgrade boto3 botocore
+          # Set up Python virtual environment
+          python3 -m venv venv
+          . venv/bin/activate
+
+          # Upgrade pip and install Python packages in venv
+          pip install --upgrade pip
+          pip install boto3 botocore
+
+          # Install Ansible AWS collection
           ansible-galaxy collection install amazon.aws --force
+
+          # Install Node.js
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt install -y nodejs
         '''  
