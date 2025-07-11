@@ -9,7 +9,7 @@ pipeline {
     stage('Install dependencies on slave') {
       steps {
         sh '''
-          # Update package lists and install python3-venv
+          # Update package lists and install python3-venv and other dependencies
           sudo apt-get update
           sudo apt-get install -y python3-venv unzip curl sudo
 
@@ -23,9 +23,9 @@ pipeline {
           python3 -m venv venv
           . venv/bin/activate
 
-          # Upgrade pip and install Python packages in venv
+          # Upgrade pip and install required Python packages including ansible
           pip install --upgrade pip
-          pip install boto3 botocore
+          pip install boto3 botocore ansible
 
           # Install Ansible AWS collection
           ansible-galaxy collection install amazon.aws --force
@@ -48,8 +48,11 @@ pipeline {
             )
           ]) {
             sh '''
+              # Activate virtual environment
               . venv/bin/activate
-              ansible-playbook -i inventory/prod/aws_ec2.yml playbooks/site.yml
+
+              # Run ansible-playbook using the venv binary to avoid path issues
+              ./venv/bin/ansible-playbook -i inventory/prod/aws_ec2.yml playbooks/site.yml
             '''
           }
         }
