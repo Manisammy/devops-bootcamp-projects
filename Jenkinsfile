@@ -9,10 +9,10 @@ pipeline {
     stage('Install aws-cli on slave') {
       steps {
         sh '''
-          # Install AWS CLI v2
+          # Install AWS CLI v2 (with --update to avoid failure if already installed)
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+          unzip -q awscliv2.zip
+          sudo ./aws/install --update
           rm -rf awscliv2.zip aws
 
           # Set up Python virtual environment
@@ -32,6 +32,7 @@ pipeline {
         '''  
       }
     }
+
     stage('Provision Infrastructure') {
       steps {
         sshagent(credentials: ['ssh-agent-key']) {
