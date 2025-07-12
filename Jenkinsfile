@@ -9,28 +9,22 @@ pipeline {
     stage('Install dependencies on slave') {
       steps {
         sh '''
-          # Update package lists and install python3-venv and other dependencies
           sudo apt-get update
           sudo apt-get install -y python3-venv unzip curl sudo
 
-          # Install AWS CLI v2 (with --update to avoid reinstall)
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip -q awscliv2.zip
           sudo ./aws/install --update
           rm -rf awscliv2.zip aws
 
-          # Set up Python virtual environment
           python3 -m venv venv
           . venv/bin/activate
 
-          # Upgrade pip and install required Python packages including ansible
           pip install --upgrade pip
           pip install boto3 botocore ansible
 
-          # Install Ansible AWS collection
           ansible-galaxy collection install amazon.aws --force
 
-          # Install Node.js 18
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt-get install -y nodejs
         '''
@@ -48,11 +42,8 @@ pipeline {
             )
           ]) {
             sh '''
-              # Activate virtual environment
               . venv/bin/activate
-
-              # Run ansible-playbook using the venv binary to avoid path issues
-              ./venv/bin/ansible-playbook -i inventory/prod/aws_ec2.yml playbooks/site.yml
+              ./venv/bin/ansible-playbook -i inventory/prod/aws_ec2.yml playbooks/site.yml -u ubuntu
             '''
           }
         }
