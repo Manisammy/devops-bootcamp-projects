@@ -378,6 +378,36 @@ export PATH=\$PATH:\$M2_HOME/bin
 EOF'
 mvn -version
 ```
+or  
+
+
+apt update
+apt install -y wget ca-certificates curl gnupg lsb-release
+
+# Use a working mirror
+wget https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+
+# Use sudo to extract to /opt
+sudo tar -xvf apache-maven-3.6.3-bin.tar.gz -C /opt
+
+# Move the directory with sudo
+sudo mv /opt/apache-maven-3.6.3 /opt/maven
+
+# Set up environment variables (as root)
+sudo bash -c 'cat <<EOF >/etc/profile.d/maven.sh
+export M2_HOME=/opt/maven
+export MAVEN_HOME=/opt/maven
+export PATH=\$PATH:\$M2_HOME/bin
+EOF'
+
+# Make the script executable
+sudo chmod +x /etc/profile.d/maven.sh
+
+# Apply the new environment variables
+source /etc/profile.d/maven.sh
+
+# Check Maven version
+mvn -version
 
 
 
